@@ -4,9 +4,9 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particlesArray = [];
-const numberOfParticles = 500;
-const attractionStrength = 0.05; // Strength of attraction
-const minDistance = 20; // Minimum distance to prevent collapse
+const numberOfParticles = 200;
+const attractionStrength = 0.01; // Strength of attraction
+const minDistance = 30; // Minimum distance to prevent collapse
 
 // Particle class
 class Particle {
@@ -44,11 +44,15 @@ class Particle {
                 const dy = other.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                // Apply attraction if not too close
+                // Apply attraction or repulsion
                 if (distance < minDistance) {
                     const force = (minDistance - distance) * attractionStrength;
                     this.directionX -= (dx / distance) * force;
                     this.directionY -= (dy / distance) * force;
+                } else {
+                    const force = (distance - minDistance) * attractionStrength;
+                    this.directionX += (dx / distance) * force * 0.5; // Add some damping
+                    this.directionY += (dy / distance) * force * 0.5;
                 }
             }
         }
