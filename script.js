@@ -4,8 +4,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particlesArray = [];
-const numberOfParticles = 200;
-const attractionStrength = 0.01; // Strength of attraction
+const numberOfParticles = 500;
+const attractionStrength = 1; // Strength of attraction
 const minDistance = 30; // Minimum distance to prevent collapse
 
 // Particle class
