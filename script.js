@@ -1,97 +1,81 @@
-// script.js
-
-// Set up canvas and context
-const canvas = document.getElementById('canvas');
+const canvas = document.getElementById('particleCanvas');
 const ctx = canvas.getContext('2d');
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Particle properties
-const NUM_CELLS = 100;
-const cells = [];
-const BASE_REPULSION = 1; // Reduced base repulsion to control the overall force
-const FORCE_SCALING = 0.01; // Scale down forces to make them weaker
-const DRAG = 0.98; // Add drag to reduce the velocity over time
+let particlesArray = [];
+const numberOfParticles = 200;
 
-// Create cell objects
-class Cell {
-    constructor(x, y) {
+// Particle class
+class Particle {
+    constructor(x, y, directionX, directionY, size, color) {
         this.x = x;
         this.y = y;
-        this.vx = Math.random() * 2 - 1;  // Random velocity in x direction
-        this.vy = Math.random() * 2 - 1;  // Random velocity in y direction
-        this.size = 5;                    // Cell size
-        this.attractForce = Math.random() * 0.01 - 0.005; // Reduced attraction/repulsion force
+        this.directionX = directionX;
+        this.directionY = directionY;
+        this.size = size;
+        this.color = color;
     }
 
-    // Update cell position and apply forces
-    update(cells) {
-        let fx = 0;
-        let fy = 0;
-
-        // Loop through all other cells and calculate forces
-        for (let other of cells) {
-            if (other !== this) {
-                const dx = other.x - this.x;
-                const dy = other.y - this.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist > 0 && dist < 150) {  // Only apply forces if within a certain range
-                    const force = ((this.attractForce + BASE_REPULSION / dist) / dist) * FORCE_SCALING;
-                    fx += force * dx;
-                    fy += force * dy;
-                }
-            }
-        }
-
-        // Apply forces to velocity
-        this.vx += fx;
-        this.vy += fy;
-
-        // Apply drag to slow down velocities
-        this.vx *= DRAG;
-        this.vy *= DRAG;
-
-        // Update position
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Keep the cells inside the canvas
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-    }
-
-    // Draw the cell
+    // Draw method to display the particle
     draw() {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = '#00ff00';
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+        ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.closePath();
+    }
+
+    // Update the position of the particle
+    update() {
+        // Bounce particles off the walls
+        if (this.x + this.size > canvas.width || this.x - this.size < 0) {
+            this.directionX = -this.directionX;
+        }
+        if (this.y + this.size > canvas.height || this.y - this.size < 0) {
+            this.directionY = -this.directionY;
+        }
+
+        // Move particle
+        this.x += this.directionX;
+        this.y += this.directionY;
+
+        // Draw particle
+        this.draw();
     }
 }
 
-// Initialize cells
-for (let i = 0; i < NUM_CELLS; i++) {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height;
-    cells.push(new Cell(x, y));
+// Initialize particles
+function init() {
+    particlesArray = [];
+    for (let i = 0; i < numberOfParticles; i++) {
+        let size = Math.random() * 5 + 1;
+        let x = Math.random() * (canvas.width - size * 2) + size;
+        let y = Math.random() * (canvas.height - size * 2) + size;
+        let directionX = (Math.random() * 0.4) - 0.2;
+        let directionY = (Math.random() * 0.4) - 0.2;
+        let color = 'white';
+
+        particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+    }
 }
 
-// Update and render loop
+// Animation loop
 function animate() {
-    // Clear the canvas
+    requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Update and draw each cell
-    for (let cell of cells) {
-        cell.update(cells);
-        cell.draw();
-    }
-
-    // Call the next frame
-    requestAnimationFrame(animate);
+    particlesArray.forEach(particle => {
+        particle.update();
+    });
 }
 
-// Start the animation
+// Adjust canvas size on window resize
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    init();
+});
+
+// Start the simulation
+init();
 animate();
