@@ -10,7 +10,7 @@ canvas.height = window.innerHeight;
 // Particle properties
 const NUM_CELLS = 100;
 const cells = [];
-const BASE_REPULSION = 500; // Reduced base repulsion to control the overall force
+const BASE_REPULSION = 1; // Reduced base repulsion to control the overall force
 const FORCE_SCALING = 0.01; // Scale down forces to make them weaker
 const DRAG = 0.98; // Add drag to reduce the velocity over time
 
