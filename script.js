@@ -4,7 +4,9 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particlesArray = [];
-const numberOfParticles = 200;
+const numberOfParticles = 500;
+const attractionStrength = 0.05; // Strength of attraction
+const minDistance = 20; // Minimum distance to prevent collapse
 
 // Particle class
 class Particle {
@@ -35,6 +37,22 @@ class Particle {
             this.directionY = -this.directionY;
         }
 
+        // Attract to other particles
+        for (let other of particlesArray) {
+            if (other !== this) {
+                const dx = other.x - this.x;
+                const dy = other.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Apply attraction if not too close
+                if (distance < minDistance) {
+                    const force = (minDistance - distance) * attractionStrength;
+                    this.directionX -= (dx / distance) * force;
+                    this.directionY -= (dy / distance) * force;
+                }
+            }
+        }
+
         // Move particle
         this.x += this.directionX;
         this.y += this.directionY;
@@ -53,7 +71,7 @@ function init() {
         let y = Math.random() * (canvas.height - size * 2) + size;
         let directionX = (Math.random() * 0.4) - 0.2;
         let directionY = (Math.random() * 0.4) - 0.2;
-        let color = 'white';
+        let color = 'red'; // Change color to red
 
         particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
     }
