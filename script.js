@@ -10,7 +10,9 @@ canvas.height = window.innerHeight;
 // Particle properties
 const NUM_CELLS = 100;
 const cells = [];
-const BASE_REPULSION = 1000; // Controls base repulsion so they don't collapse
+const BASE_REPULSION = 500; // Reduced base repulsion to control the overall force
+const FORCE_SCALING = 0.01; // Scale down forces to make them weaker
+const DRAG = 0.98; // Add drag to reduce the velocity over time
 
 // Create cell objects
 class Cell {
@@ -20,7 +22,7 @@ class Cell {
         this.vx = Math.random() * 2 - 1;  // Random velocity in x direction
         this.vy = Math.random() * 2 - 1;  // Random velocity in y direction
         this.size = 5;                    // Cell size
-        this.attractForce = Math.random() * 0.02 - 0.01; // Attraction/repulsion (positive = attract, negative = repel)
+        this.attractForce = Math.random() * 0.01 - 0.005; // Reduced attraction/repulsion force
     }
 
     // Update cell position and apply forces
@@ -34,8 +36,8 @@ class Cell {
                 const dx = other.x - this.x;
                 const dy = other.y - this.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist > 0 && dist < 100) {  // Only apply forces if within range
-                    const force = (this.attractForce + BASE_REPULSION / dist) / dist;
+                if (dist > 0 && dist < 150) {  // Only apply forces if within a certain range
+                    const force = ((this.attractForce + BASE_REPULSION / dist) / dist) * FORCE_SCALING;
                     fx += force * dx;
                     fy += force * dy;
                 }
@@ -45,6 +47,10 @@ class Cell {
         // Apply forces to velocity
         this.vx += fx;
         this.vy += fy;
+
+        // Apply drag to slow down velocities
+        this.vx *= DRAG;
+        this.vy *= DRAG;
 
         // Update position
         this.x += this.vx;
